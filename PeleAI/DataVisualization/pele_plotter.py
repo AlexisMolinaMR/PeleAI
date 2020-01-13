@@ -10,6 +10,7 @@ import sys
 path = sys.argv[1] # path by sys argv for now
 metric = sys.argv[2] # plot metric vs B.E.
 show = sys.argv[3] # show if set to 'show', save if set to 'save'
+#save_path = sys.argv[4] # path to save the plots
 
 fields = ['hbond_H_val_690', 'RMSD_ligand', 'docking_com_dist', 'Binding Energy'] # to be given as input
 
@@ -35,4 +36,4 @@ for filename in glob.glob(os.path.join(path, 'summary.csv')):
     if show == 'show':
         plt.show()
     else:
-        plt.savefig(foldername + '_' + metric + "_pele_plot.png")
+        plt.savefig("pele_plot.png")
