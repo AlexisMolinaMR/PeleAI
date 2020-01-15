@@ -15,13 +15,17 @@ save_path = sys.argv[4] # path to save the plots
 mode = sys.argv[5] # normal/interactive
 filter = sys.argv[6] # select best %, NA to avoid
 
-# e.g. python pele_plotter.py /home/amolina/Desktop/summaries hbond save /home/amolina/Desktop/plots normal NA
+# e.g. python pele_plotter.py /home/alexis/Desktop/summaries hbond save /home/alexis/Desktop/plots interactive NA
 
-fields = ['hbond_H_val_690', 'RMSD_ligand', 'docking_com_dist', 'Binding Energy', 'trajectory'] # to be given as input (argparse)
+fields = ['hbond_H_val_690', 'RMSD_ligand', 'docking_com_dist', 'Binding Energy', 'trajectory', 'epoch', 'numberOfAcceptedPeleSteps'] # to be given as input (argparse)
 
 for filename in glob.glob(os.path.join(path, '*.csv')):
     pele_out_summary = pd.read_csv(filename, sep=';', usecols = fields)
     pele_out_summary.rename({'Binding Energy': 'Binding_Energy'}, axis = 'columns', inplace = True)
+
+    pele_out_summary.numberOfAcceptedPeleSteps = pele_out_summary.numberOfAcceptedPeleSteps.astype(str)
+    pele_out_summary.epoch = pele_out_summary.epoch.astype(str)
+
 
     if mode == "normal" and filter == 'NA':
         if metric == "hbond":
@@ -72,10 +76,12 @@ for filename in glob.glob(os.path.join(path, '*.csv')):
 
 
     elif mode == "interactive" and filter == 'NA':
+        print(pele_out_summary.trajectory.str.split("/"))
         if metric == "hbond":
             fig = go.Figure(data=go.Scatter(x=pele_out_summary.hbond_H_val_690,
                             y=pele_out_summary.Binding_Energy,
                             mode = 'markers',
+                            text = pele_out_summary.trajectory +'<br>'+ 'Epoch: '+ pele_out_summary.epoch +'<br>'+ 'Step: ' + pele_out_summary.numberOfAcceptedPeleSteps,
                             marker=dict(
                                 size=10,
                                 color=pele_out_summary.Binding_Energy, #set color equal to a variable
@@ -107,6 +113,7 @@ for filename in glob.glob(os.path.join(path, '*.csv')):
             fig = go.Figure(data=go.Scatter(x=pele_out_summary.RMSD_ligand,
                             y=pele_out_summary.Binding_Energy,
                             mode = 'markers',
+                            text = pele_out_summary.trajectory +'<br>'+ 'Epoch: '+ pele_out_summary.epoch +'<br>'+ 'Step: ' + pele_out_summary.numberOfAcceptedPeleSteps,
                             marker=dict(
                                 size=10,
                                 color=pele_out_summary.Binding_Energy, #set color equal to a variable
@@ -137,6 +144,7 @@ for filename in glob.glob(os.path.join(path, '*.csv')):
             fig = go.Figure(data=go.Scatter(x=pele_out_summary.docking_com_dist,
                             y=pele_out_summary.Binding_Energy,
                             mode = 'markers',
+                            text = pele_out_summary.trajectory +'<br>'+ 'Epoch: '+ pele_out_summary.epoch +'<br>'+ 'Step: ' + pele_out_summary.numberOfAcceptedPeleSteps,
                             marker=dict(
                                 size=10,
                                 color=pele_out_summary.Binding_Energy, #set color equal to a variable
@@ -177,6 +185,7 @@ for filename in glob.glob(os.path.join(path, '*.csv')):
             fig = go.Figure(data=go.Scatter(x=filtered_dataframe.hbond_H_val_690,
                             y=filtered_dataframe.Binding_Energy,
                             mode = 'markers',
+                            text = pele_out_summary.trajectory +'<br>'+ 'Epoch: '+ pele_out_summary.epoch +'<br>'+ 'Step: ' + pele_out_summary.numberOfAcceptedPeleSteps,
                             marker=dict(
                                 size=10,
                                 color=filtered_dataframe.Binding_Energy, #set color equal to a variable
@@ -208,6 +217,7 @@ for filename in glob.glob(os.path.join(path, '*.csv')):
             fig = go.Figure(data=go.Scatter(x=filtered_dataframe.RMSD_ligand,
                             y=filtered_dataframe.Binding_Energy,
                             mode = 'markers',
+                            text = pele_out_summary.trajectory +'<br>'+ 'Epoch: '+ pele_out_summary.epoch +'<br>'+ 'Step: ' + pele_out_summary.numberOfAcceptedPeleSteps,
                             marker=dict(
                                 size=10,
                                 color=filtered_dataframe.Binding_Energy, #set color equal to a variable
@@ -238,6 +248,7 @@ for filename in glob.glob(os.path.join(path, '*.csv')):
             fig = go.Figure(data=go.Scatter(x=filtered_dataframe.docking_com_dist,
                             y=filtered_dataframe.Binding_Energy,
                             mode = 'markers',
+                            text = pele_out_summary.trajectory +'<br>'+ 'Epoch: '+ pele_out_summary.epoch +'<br>'+ 'Step: ' + pele_out_summary.numberOfAcceptedPeleSteps,
                             marker=dict(
                                 size=10,
                                 color=filtered_dataframe.Binding_Energy, #set color equal to a variable
