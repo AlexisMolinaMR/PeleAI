@@ -1,11 +1,25 @@
 ## Table of contents
 * [PeleAI](#PeleAI)
+* [Requirements](##Requirements)
 * [Usage](##Usage)
 * [To developers](##To-developers)
 
 # PeleAI
 
 Create scoring functions from simulation.
+
+## Requirements
+
+```
+numpy==1.19.0
+pandas==1.1.4
+prody==1.11
+sklearn==0.23
+xgboost==1.3.0
+lightgbm==3.1.0
+```
+
+`pip install -r requirements.txt`
 
 ## Usage
 
