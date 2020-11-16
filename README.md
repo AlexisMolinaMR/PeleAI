@@ -48,10 +48,10 @@ Not tested. Avoid for now.
 
 ## To developers
 
-## Protein-ligand branch
+### Protein-ligand branch
 
 Commit to this branch if developing for protein-ligand interactions.
 
-## Protein-protein branch
+### Protein-protein branch
 
 Commit to this brach if developing for protein-protein interactions.
