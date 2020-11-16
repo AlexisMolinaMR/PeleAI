@@ -1,8 +1,8 @@
 ## Table of contents
 * [PeleAI](#PeleAI)
 * [Requirements](##Requirements)
-* [Usage](##Usage)
-* [To developers](##To-developers)
+* [Usage](#Usage)
+* [To developers](#To-developers)
 
 # PeleAI
 
@@ -34,7 +34,7 @@ lightgbm==3.1.0
 
 `python3 generate_graph.py -i path/to/pose.pdb -l LIG -r RADIUS -gc -ex`
 
-You will need a bash script to run through several poses.
+You will need a bash script to run through several poses. An example is provided in _run_graph.sh_.
 
 The output will be two csv files, one for Laplacian matrices (_L_stats_ex.csv_) and another for Adjacency matrices (_A_stats_ex.csv_). Use _L_stats_ex.csv_.
 
