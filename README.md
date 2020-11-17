@@ -42,11 +42,11 @@ The output will be two csv files, one for Laplacian matrices (_L_stats_ex.csv_) 
 
 **Arguments**
 
-`python3 -i /path/to/L_stats_ex.csv -t TEST_SIZE -s SEED (-c | -r) [-d]`
+`python3 fit_graph.py -i /path/to/L_stats_ex.csv -t TEST_SIZE -s SEED (-c | -r) [-d]`
 
 #### Classification
 
-`python3 -i /path/to/L_stats_ex.csv -t TEST_SIZE -s SEED -c`
+`python3 fit_graph.py -i /path/to/L_stats_ex.csv -t TEST_SIZE -s SEED -c`
 
 Classification will be performed using three gradient boosting regressors: Gradient Boosting Regressor, eXtreme Gradient Boosting Regressor and Light Gradient Boosting Regresssor.
 
@@ -54,7 +54,7 @@ Classification will be performed using three gradient boosting regressors: Gradi
 
 If desired, all sklearn scalers will be fit and evaluated.
 
-`python3 -i /path/to/L_stats_ex.csv -t TEST_SIZE -s SEED -c -d`
+`python3 fit_graph.py -i /path/to/L_stats_ex.csv -t TEST_SIZE -s SEED -c -d`
 
 #### Regression
 
