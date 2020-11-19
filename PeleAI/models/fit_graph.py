@@ -562,7 +562,7 @@ def main():
             best_lr, best_train_R2, best_test_R2 = LM.GBR_optimization(train=train, bindingEnergy_train=bindingEnergy_train, test=test, bindingEnergy_test=bindingEnergy_test)
             pred, R2_test, MSE, epoch_pred = LM.GBR(best_lr=best_lr)
             XGBR_best_lr, XGBR_best_train_R2, XGBR_best_test_R2 = LM.XGBR_optimization(train=train, bindingEnergy_train=bindingEnergy_train, test=test, bindingEnergy_test=bindingEnergy_test)
-            XGBR_pred, XGBR_R2_test, XGBR_MSE, epoch_pred = LM.XGBR(best_lr=XGBR_best_lr)
+            XGBR_pred, XGBR_R2_test, XGBR_MSE = LM.XGBR(best_lr=XGBR_best_lr)
             LGBR_best_lr, LGBR_best_train_R2, LGBR_best_test_R2 = LM.LGBR_optimization(train=train, bindingEnergy_train=bindingEnergy_train, test=test, bindingEnergy_test=bindingEnergy_test)
             LGBR_pred, LGBR_R2_test, LGBR_MSE = LM.LGBR(best_lr=LGBR_best_lr)
             MLPR_pred, MLPR_R2_test, MLPR_MSE, params = LM.MLPR(train=train, bindingEnergy_train=bindingEnergy_train, test=test, bindingEnergy_test=bindingEnergy_test)
