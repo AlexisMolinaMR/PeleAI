@@ -599,12 +599,10 @@ def main():
 
             print("#####################################")
             print("Multi-layer Perceptron Regressor\n")
-            print("Best learning rate: {}".format(MLPR_best_lr))
-            print("Best train R2: {}".format(MLPR_best_train_R2))
             print("Best parameters: {}".format(params))
             print("Best test R2: {}\n".format(MLPR_R2_test))
             print("Mean squared error: {}\n".format(MLPR_MSE))
-
+            print("MPL predicctions: {}\n".format(MLPR_pred))
 
     end = time.time()
 
