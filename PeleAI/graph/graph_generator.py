@@ -18,18 +18,21 @@ def parseArg():
     parser.add_argument("-i", "--pose", required=True, type=str, help="path to docking poses")
     parser.add_argument("-l", "--ligand", required=True, type=str, help="ligand name")
     parser.add_argument("-r", "--radius", required=True, type=float, help="binding pocket selection radius")
+    parser.add_argument("-at", "--atom_types", required=False, action='store_true', help="compute matrices for atom types instead of elements")
     parser.add_argument("-gc", "--geomcenter", required=False, action='store_true', help="if selected, method will proceed with geometric ligand center" )
     parser.add_argument("-ds", "--doubleselection", required=False, action='store_true', help="if selected, method will proceed with two selection spheres at outmost atoms of ligand's x-axis" )
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-ex', "--exponential", action='store_true', help="use exponential as decay function")
     group.add_argument('-lo', "--lorentz", action='store_true', help="use Lorentz functions as decay function")
     parser.add_argument('-lp', "--inligprot", required=False, action='store_true', help="include intraligand and intraprotein interactions")
+    parser.add_argument('-n', '--file_name', required=False, type=str, help='custom name to output csv files')
 
     args = parser.parse_args()
 
     path = args.pose
     ligand_name = args.ligand
     selection_radius = args.radius
+    at_types = args.atom_types
     if args.geomcenter is not None:
         geom_center = args.geomcenter
     else:
@@ -49,8 +52,13 @@ def parseArg():
     else:
         inligprot = None
 
+    if args.file_name is not None:
+        name = args.file_name + '_'
+    else:
+        name = ""
 
-    return path, ligand_name, selection_radius, geom_center, double_center, expo, lor, inligprot
+
+    return path, ligand_name, at_types, selection_radius, geom_center, double_center, expo, lor, inligprot, name
 
 
 
@@ -236,54 +244,55 @@ def binding_pocket_selection(pose_store, p, ligand_name, selection_radius, cente
         print('Number of ligand atoms selected: {}'.format(len(ligand)))
         print('Total number of atoms selected: {}'.format(len(binding_pocket)+len(ligand)))
 
-    print(ligand)
+
+    print(binding_pocket)
 
     return binding_pocket, ligand
 
 
 
-def atomTypeDistanceCalc(binding_pocket, ligand, inligprot):
+def elementsDistanceCalc(binding_pocket, ligand, inligprot):
     '''
-    Compute distances between selected atoms and discard covalent interactions.
+    Compute distances between selected elements and discard covalent interactions.
     '''
 
-    atom_types = []
+    elements = []
     at_count = 0
 
     atom_interactions = []
 
-    used_types = []
+    used_elements = []
 
     atomic_radius_elements = {'C':0.7, 'O':0.6, 'N':0.65, 'H':0.25, 'Cl':1, 'P':1, 'S':1, 'FE':1.4, 'Br':1.15, 'F':0.5, 'I':1.4}
 
     if inligprot:
         for atom in binding_pocket:
-            if atom not in atom_types:
+            if atom not in elements:
                 atom_types.append(atom[-1])
         for atom in ligand:
-            if atom not in atom_types:
-                atom_types.append(atom[-1])
+            if atom not in elements:
+                elements.append(atom[-1])
 
-        atom_types = list(set(atom_types))
+        elements = list(set(elements))
 
-        for element in atom_types:
+        for element in elements:
             if (len(element) > 2) and (element[0] in atom_types):
-                atom_types.remove(element)
+                elements.remove(element)
 
-        print("Number of possible subgraphs: {}".format(((len(atom_types)**2)+len(atom_types))/2))
+        print("Number of possible subgraphs: {}".format(((len(elements)**2)+len(elements))/2))
         print('\n')
 
         protein_ligand = binding_pocket + ligand
 
         protein_ligand.sort(key=lambda tup: tup[-1])
 
-        atom_types.sort()
+        elements.sort()
 
         for i in range(len(protein_ligand)):
             try:
-                if protein_ligand[i][-1] == atom_types[at_count]:
+                if protein_ligand[i][-1] == elements[at_count]:
 
-                    used_types.append(atom_types[at_count])
+                    used_elements.append(elements[at_count])
                     at_count += 1
 
                     for j in range(i, len(protein_ligand)):
@@ -305,24 +314,24 @@ def atomTypeDistanceCalc(binding_pocket, ligand, inligprot):
                 pass
 
 
-        ligand_atom_types = None
-        protein_atom_types = None
+        ligand_elements = None
+        protein_elements = None
 
 
     else:
 
         at_count = 0
 
-        protein_atom_types = ['C','O','N','S']
-        protein_atom_types.sort()
-        ligand_atom_types = ['H','C','N','O','F','P','S','Cl','Br','I']
-        ligand_atom_types.sort()
+        protein_elements = ['C','O','N','S']
+        protein_elements.sort()
+        ligand_elements = ['H','C','N','O','F','P','S','Cl','Br','I']
+        ligand_elements.sort()
 
         ligand.sort(key=lambda tup: tup[-1])
         binding_pocket.sort(key=lambda tup: tup[-1])
 
         for i in range(len(ligand)):
-            if binding_pocket[i][-1] == protein_atom_types[at_count]:
+            if binding_pocket[i][-1] == protein_elements[at_count]:
                 at_count += 1
             for j in range(i, len(ligand)):
 
@@ -350,12 +359,71 @@ def atomTypeDistanceCalc(binding_pocket, ligand, inligprot):
                         distance_interaction = ()
 
 
-        atom_types = None
+        elements = None
+
+    return atom_interactions, elements, ligand_elements, protein_elements
+
+
+def atomTypesDistanceCalc(binding_pocket, ligand):
+
+    atom_interactions = []
+
+    atom_types = []
+
+    used_types = []
+
+    atomic_radius_types = {'C':0.7,'CA':0.7,'CB':0.7,'CG':0.7,'CD':0.7,'CE':0.7,'CZ':0.7,'CH':0.7, 'O':0.6, 'N':0.65, 'H':0.25, 'Cl':1, 'P':1, 'S':1, 'FE':1.4, 'Br':1.15, 'F':0.5, 'I':1.4}
+
+    at_count = 0
+
+    protein_atom_types = ['C','CA','CB','CG','CD','CE','CZ','CH','O','N','S']
+    protein_atom_types.sort()
+    ligand_atom_types = ['H','C','N','O','F','P','S','Cl','Br','I']
+    ligand_atom_types.sort()
+
+    ligand.sort(key=lambda tup: tup[-1])
+    binding_pocket.sort(key=lambda tup: tup[-1])
+
+    for i in range(len(ligand)):
+        if binding_pocket[i][1] == protein_atom_types[at_count]:
+            at_count += 1
+        for j in range(i, len(ligand)):
+
+            x1 = math.pow(float(ligand[j][2]) - float(binding_pocket[i][2]), 2)
+            y1 = math.pow(float(ligand[j][3]) - float(binding_pocket[i][3]), 2)
+            z1 = math.pow(float(ligand[j][4]) - float(binding_pocket[i][4]), 2)
+
+            try:
+                if int(ligand[i][-1][0]):
+
+                    if (x1 + y1 + z1 <= atomic_radius_types[binding_pocket[i][-1]]**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][1][0]]**2):
+                        print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                    else:
+                        distance_interaction = (binding_pocket[i][-1], binding_pocket[i][1], ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                        atom_interactions.append(distance_interaction)
+                        distance_interaction = ()
+            except:
+                if (x1 + y1 + z1 <= atomic_radius_types[binding_pocket[i][-1]]**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                    print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                else:
+                    distance_interaction = (binding_pocket[i][-1], binding_pocket[i][1], ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                    atom_interactions.append(distance_interaction)
+                    distance_interaction = ()
+
+    for i in sorted(protein_atom_types):
+        for j in sorted(ligand_atom_types):
+            atom_types.append(j + '-' + i)
+
+    atom_types.sort()
+
 
     return atom_interactions, atom_types, ligand_atom_types, protein_atom_types
 
 
-def subgraphsWeights(atom_interactions, types, expo, lorentz, inligprot, ligand_atom_types, protein_atom_types):
+
+def subgraphsWeights(atom_interactions, types, expo, lorentz, inligprot, ligand_atom_types, protein_atom_types, at_types):
     '''
     Compute subgraph weights using either exponential or Lorentz decay functions.
     '''
@@ -368,17 +436,31 @@ def subgraphsWeights(atom_interactions, types, expo, lorentz, inligprot, ligand_
 
     final_weigths = []
 
-    if expo is not None:
-        for inter in atom_interactions:
-            type_weight = (np.exp(-abs(inter[-1])/3), "{}-{}".format(inter[0],inter[2]))
-            weights.append(type_weight)
-            type_weight = ()
+    if at_types:
+        if expo is not None:
+            for inter in atom_interactions:
+                type_weight = (np.exp(-abs(inter[-1])/3), "{}-{}".format(inter[2],inter[1]))
+                weights.append(type_weight)
+                type_weight = ()
 
-    elif lor is not None:
-        for inter in atom_interactions:
-            type_weight = ((1/1 + (abs(inter[-1])/3)**5), "{}-{}".format(inter[0],inter[2]))
-            weights.append(type_weight)
-            type_weight = ()
+        elif lor is not None:
+            for inter in atom_interactions:
+                type_weight = ((1/1 + (abs(inter[-1])/3)**5), "{}-{}".format(inter[2],inter[1]))
+                weights.append(type_weight)
+                type_weight = ()
+
+    else:
+        if expo is not None:
+            for inter in atom_interactions:
+                type_weight = (np.exp(-abs(inter[-1])/3), "{}-{}".format(inter[0],inter[2]))
+                weights.append(type_weight)
+                type_weight = ()
+
+        elif lor is not None:
+            for inter in atom_interactions:
+                type_weight = ((1/1 + (abs(inter[-1])/3)**5), "{}-{}".format(inter[0],inter[2]))
+                weights.append(type_weight)
+                type_weight = ()
 
 
     if inligprot:
@@ -410,21 +492,27 @@ def subgraphsWeights(atom_interactions, types, expo, lorentz, inligprot, ligand_
 
         weights = list(set(weights))
 
-        for w in weights:
-            if w[-1] in atom_atom:
-                final_weigths.append(w)
+        if not at_types:
+            for w in weights:
+                if w[-1] in atom_atom:
+                    final_weigths.append(w)
+
+        else:
+
+            final_weigths = weights
+
+    atom_atom.sort()
 
     return final_weigths, atom_atom
 
 
-def laplacianMatrix(weights, atom_combinations):
+def laplacianMatrix(weights, atom_combinations, at_types):
     '''
     Compute Laplacian matrices.
     '''
 
     laplacian_matrices = []
 
-    print(atom_combinations)
     for element in atom_combinations:
         element_count = 0
         for weight in weights:
@@ -460,7 +548,7 @@ def laplacianMatrix(weights, atom_combinations):
 
     return laplacian_matrices
 
-def adjacencyMatrix(weights, atom_combinations):
+def adjacencyMatrix(weights, atom_combinations, at_types):
     '''
     Compute adjacency matrices.
     '''
@@ -667,23 +755,41 @@ def adjacencyStats(matrices, path):
 
     return adjacency_statistics
 
-def statsToCsv(laplacian_statistics, adjacency_statistics, expo, lorentz, inligprot):
+def statsToCsv(laplacian_statistics, adjacency_statistics, expo, lorentz, inligprot, at_types, name):
     '''
     Write previously computed statistics to a csv file.
     '''
 
-    element_element = ['Br-C', 'Br-N', 'Br-O', 'Br-S', 'C-C', 'C-N', 'C-O', 'C-S', 'Cl-C', 'Cl-N', 'Cl-O', 'Cl-S', 'F-C', 'F-N', 'F-O', 'F-S', 'H-C', 'H-N', 'H-O', 'H-S', 'I-C', 'I-N', 'I-O', 'I-S', 'N-C', 'N-N', 'N-O', 'N-S', 'O-C', 'O-N', 'O-O', 'O-S', 'P-C', 'P-N', 'P-O', 'P-S', 'S-C', 'S-N', 'S-O', 'S-S']
-    element_features = ['ligand']
-    for elements in element_element:
-        element_features.append(elements + "_max")
-        element_features.append(elements + "_min")
-        element_features.append(elements + "_sum")
-        element_features.append(elements + "_mean")
-        element_features.append(elements + "_median")
-        element_features.append(elements + "_std")
-        element_features.append(elements + "_vari")
-        element_features.append(elements + "_num")
-        element_features.append(elements + "_2dpow")
+    if at_types:
+
+        element_element = ['Br-CA', 'Br-CB', 'Br-CD', 'Br-CE', 'Br-CG', 'Br-CH', 'Br-CZ', 'Br-N', 'Br-O', 'Br-S', 'C-CA', 'C-CB', 'C-CD', 'C-CE', 'C-CG', 'C-CH', 'C-CZ', 'C-N', 'C-O', 'C-S', 'Cl-CA', 'Cl-CB', 'Cl-CD', 'Cl-CE', 'Cl-CG', 'Cl-CH', 'Cl-CZ', 'Cl-N', 'Cl-O', 'Cl-S', 'F-CA', 'F-CB', 'F-CD', 'F-CE', 'F-CG', 'F-CH', 'F-CZ', 'F-N', 'F-O', 'F-S', 'H-CA', 'H-CB', 'H-CD', 'H-CE', 'H-CG', 'H-CH', 'H-CZ', 'H-N', 'H-O', 'H-S', 'I-CA', 'I-CB', 'I-CD', 'I-CE', 'I-CG', 'I-CH', 'I-CZ', 'I-N', 'I-O', 'I-S', 'N-CA', 'N-CB', 'N-CD', 'N-CE', 'N-CG', 'N-CH', 'N-CZ', 'N-N', 'N-O', 'N-S', 'O-CA', 'O-CB', 'O-CD', 'O-CE', 'O-CG', 'O-CH', 'O-CZ', 'O-N', 'O-O', 'O-S', 'P-CA', 'P-CB', 'P-CD', 'P-CE', 'P-CG', 'P-CH', 'P-CZ', 'P-N', 'P-O', 'P-S', 'S-CA', 'S-CB', 'S-CD', 'S-CE', 'S-CG', 'S-CH', 'S-CZ', 'S-N', 'S-O', 'S-S']
+
+        element_features = ['ligand']
+        for elements in element_element:
+            element_features.append(elements + "_max")
+            element_features.append(elements + "_min")
+            element_features.append(elements + "_sum")
+            element_features.append(elements + "_mean")
+            element_features.append(elements + "_median")
+            element_features.append(elements + "_std")
+            element_features.append(elements + "_vari")
+            element_features.append(elements + "_num")
+            element_features.append(elements + "_2dpow")
+
+    else:
+
+        element_element = ['Br-C', 'Br-N', 'Br-O', 'Br-S', 'C-C', 'C-N', 'C-O', 'C-S', 'Cl-C', 'Cl-N', 'Cl-O', 'Cl-S', 'F-C', 'F-N', 'F-O', 'F-S', 'H-C', 'H-N', 'H-O', 'H-S', 'I-C', 'I-N', 'I-O', 'I-S', 'N-C', 'N-N', 'N-O', 'N-S', 'O-C', 'O-N', 'O-O', 'O-S', 'P-C', 'P-N', 'P-O', 'P-S', 'S-C', 'S-N', 'S-O', 'S-S']
+        element_features = ['ligand']
+        for elements in element_element:
+            element_features.append(elements + "_max")
+            element_features.append(elements + "_min")
+            element_features.append(elements + "_sum")
+            element_features.append(elements + "_mean")
+            element_features.append(elements + "_median")
+            element_features.append(elements + "_std")
+            element_features.append(elements + "_vari")
+            element_features.append(elements + "_num")
+            element_features.append(elements + "_2dpow")
 
     laplacian_st = []
     adjacency_st = []
@@ -697,50 +803,50 @@ def statsToCsv(laplacian_statistics, adjacency_statistics, expo, lorentz, inligp
     if inligprot:
 
         if expo:
-            L_df.to_csv('L_stats_expo.csv', mode='a', header=False, index=False)
-            A_df.to_csv('A_stats_expo.csv', mode='a', header=False, index=False)
+            L_df.to_csv(name + 'L_stats_expo.csv', mode='a', header=False, index=False)
+            A_df.to_csv(name + 'A_stats_expo.csv', mode='a', header=False, index=False)
 
         else:
-            L_df.to_csv('L_stats_lorentz.csv', mode='a', header=False, index=False)
-            A_df.to_csv('A_stats_lorentz.csv', mode='a', header=False, index=False)
+            L_df.to_csv(name + 'L_stats_lorentz.csv', mode='a', header=False, index=False)
+            A_df.to_csv(name + 'A_stats_lorentz.csv', mode='a', header=False, index=False)
 
 
     else:
 
         if expo:
-            if os.path.isfile("L_stats_expo.csv"):
-                L_df.to_csv('L_stats_expo.csv', mode='a', header=False, index=False)
+            if os.path.isfile(name + "L_stats_expo.csv"):
+                L_df.to_csv(name + 'L_stats_expo.csv', mode='a', header=False, index=False)
             else:
-                with open('L_stats_expo.csv', "w") as f:
+                with open(name + 'L_stats_expo.csv', "w") as f:
                     writer = csv.writer(f)
                     writer.writerow(element_features)
-                L_df.to_csv('L_stats_expo.csv', mode='a', header=False, index=False)
+                L_df.to_csv(name + 'L_stats_expo.csv', mode='a', header=False, index=False)
 
 
-            if os.path.isfile("A_stats_expo.csv"):
-                A_df.to_csv('A_stats_expo.csv', mode='a', header=False, index=False)
+            if os.path.isfile(name + "A_stats_expo.csv"):
+                A_df.to_csv(name + 'A_stats_expo.csv', mode='a', header=False, index=False)
             else:
-                with open('A_stats_expo.csv', "w") as f:
+                with open(name + 'A_stats_expo.csv', "w") as f:
                     writer = csv.writer(f)
                     writer.writerow(element_features)
-                A_df.to_csv('A_stats_expo.csv', mode='a', header=False, index=False)
+                A_df.to_csv(name + 'A_stats_expo.csv', mode='a', header=False, index=False)
 
         else:
-            if os.path.isfile("L_stats_lorentz.csv"):
-                L_df.to_csv('L_stats_lorentz.csv', mode='a', header=False, index=False)
+            if os.path.isfile(name + "L_stats_lorentz.csv"):
+                L_df.to_csv(name + 'L_stats_lorentz.csv', mode='a', header=False, index=False)
             else:
-                with open('L_stats_lorentz.csv', "w") as f:
+                with open(name + 'L_stats_lorentz.csv', "w") as f:
                     writer = csv.writer(f)
                     writer.writerow(element_features)
-                L_df.to_csv('L_stats_lorentz.csv', mode='a', header=False, index=False)
+                L_df.to_csv(name + 'L_stats_lorentz.csv', mode='a', header=False, index=False)
 
-            if os.path.isfile("A_stats_lorentz.csv"):
-                A_df.to_csv('A_stats_lorentz.csv', mode='a', header=False, index=False)
+            if os.path.isfile(name + "A_stats_lorentz.csv"):
+                A_df.to_csv(name + 'A_stats_lorentz.csv', mode='a', header=False, index=False)
             else:
-                with open('A_stats_lorentz.csv', "w") as f:
+                with open(name + 'A_stats_lorentz.csv', "w") as f:
                     writer = csv.writer(f)
                     writer.writerow(element_features)
-                A_df.to_csv('A_stats_lorentz.csv', mode='a', header=False, index=False)
+                A_df.to_csv(name + 'A_stats_lorentz.csv', mode='a', header=False, index=False)
 
     return 0
 
@@ -749,17 +855,24 @@ def main():
 
     start = time.time()
 
-    path, ligand_name, selection_radius, geom_center, double_center, expo, lor, inligprot = parseArg()
+    path, ligand_name, at_types, selection_radius, geom_center, double_center, expo, lor, inligprot, name = parseArg()
 
     pose_store, prody_parsed = PDBParser(path=path)
     selected_protein, selected_ligand = binding_pocket_selection(pose_store=pose_store, p=prody_parsed, ligand_name=ligand_name, selection_radius=selection_radius, center=geom_center, double_center=double_center)
-    interactions, atom_types, ligand_atom_types, protein_atom_types = atomTypeDistanceCalc(binding_pocket=selected_protein, ligand=selected_ligand, inligprot=inligprot)
-    final_weigths, atom_combinations = subgraphsWeights(atom_interactions=interactions, types=atom_types, expo=expo, lorentz=lor, inligprot=inligprot, ligand_atom_types=ligand_atom_types, protein_atom_types=protein_atom_types)
-    L_mat = laplacianMatrix(weights=final_weigths, atom_combinations=atom_combinations)
-    A_mat = adjacencyMatrix(weights=final_weigths, atom_combinations=atom_combinations)
+
+    if at_types:
+        interactions, atom_types, ligand_atom_types, protein_atom_types = atomTypesDistanceCalc(binding_pocket=selected_protein, ligand=selected_ligand)
+        final_weigths, atom_combinations = subgraphsWeights(atom_interactions=interactions, types=atom_types, expo=expo, lorentz=lor, inligprot=inligprot, ligand_atom_types=ligand_atom_types, protein_atom_types=protein_atom_types, at_types=at_types)
+    else:
+        interactions, elements, ligand_elements, protein_elements = elementsDistanceCalc(binding_pocket=selected_protein, ligand=selected_ligand, inligprot=inligprot)
+        final_weigths, atom_combinations = subgraphsWeights(atom_interactions=interactions, types=elements, expo=expo, lorentz=lor, inligprot=inligprot, ligand_atom_types=ligand_elements, protein_atom_types=protein_elements, at_types=at_types)
+
+    L_mat = laplacianMatrix(weights=final_weigths, atom_combinations=atom_combinations, at_types=at_types)
+    A_mat = adjacencyMatrix(weights=final_weigths, atom_combinations=atom_combinations, at_types=at_types)
     LP = laplacianStats(matrices=L_mat, path=path)
     AD = adjacencyStats(matrices=A_mat, path=path)
-    statsToCsv(laplacian_statistics=LP, adjacency_statistics=AD, expo=expo, lorentz=lor, inligprot=inligprot)
+
+    statsToCsv(laplacian_statistics=LP, adjacency_statistics=AD, expo=expo, lorentz=lor, inligprot=inligprot, at_types=at_types, name=name)
 
     end = time.time()
 
