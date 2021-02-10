@@ -245,8 +245,6 @@ def binding_pocket_selection(pose_store, p, ligand_name, selection_radius, cente
         print('Total number of atoms selected: {}'.format(len(binding_pocket)+len(ligand)))
 
 
-    print(binding_pocket)
-
     return binding_pocket, ligand
 
 
@@ -372,11 +370,14 @@ def atomTypesDistanceCalc(binding_pocket, ligand):
 
     used_types = []
 
-    atomic_radius_types = {'C':0.7,'CA':0.7,'CB':0.7,'CG':0.7,'CD':0.7,'CE':0.7,'CZ':0.7,'CH':0.7, 'O':0.6, 'N':0.65, 'H':0.25, 'Cl':1, 'P':1, 'S':1, 'FE':1.4, 'Br':1.15, 'F':0.5, 'I':1.4}
-
+    atomic_radius_types = {'NH1':1.65, 'CP':1.76, 'CH1E':1.87, 'O':0.6, 'OP':1.4, 'CH0':1.76, 'CH1S':1.87, 'CH2E':1.87, 'CH3E':1.87, 'CR1E':1.76, 'OH1':1.4, 'OC':1.4, 'OS':1.4, 'CH2G':1.87, 'CH2P':1.87,
+                            'NH1S':1.65, 'NC2':1.65, 'NH2':1.65, 'CR1W':1.76, 'CY2':1.76, 'SC':1.85, 'CF':1.76, 'SM':1.85, 'CY':1.76, 'SM':1.85, 'CY':1.76, 'CW':1.76, 'CRHH': 1.76, 'NH3':1.5,
+                            'CR1H':1.76, 'C5':1.76, 'C':0.7, 'N':1, 'NP':1.65, 'C5W':1.76, 'H':0.25, 'Cl':1, 'P':1, 'S':1, 'FE':1.4, 'Br':1.15, 'F':0.5, 'I':1.4}
     at_count = 0
 
-    protein_atom_types = ['C','CA','CB','CG','CD','CE','CZ','CH','O','N','S']
+    protein_atom_types = ['NH1','C', 'CP', 'CH1E','OP', 'O','CH0','CH1S','CH2E','CH3E','CR1E','OH1','OC','OS','CH2G','CH2P','NH1S','NC2','NH2','CR1W','CY2','SC','CF','SM','CY','CW','CRHH','NH3','CR1H','C5',
+                            'N','NP','C5W','H','Cl','P','S','FE','Br','F','I']
+
     protein_atom_types.sort()
     ligand_atom_types = ['H','C','N','O','F','P','S','Cl','Br','I']
     ligand_atom_types.sort()
@@ -404,13 +405,401 @@ def atomTypesDistanceCalc(binding_pocket, ligand):
                         atom_interactions.append(distance_interaction)
                         distance_interaction = ()
             except:
-                if (x1 + y1 + z1 <= atomic_radius_types[binding_pocket[i][-1]]**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
-                    print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+                if binding_pocket[i][1] == 'NH1':
+                    if binding_pocket[i][0] == 'ARG':
+                        if (x1 + y1 + z1 <= atomic_radius_types['NC2']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
 
-                else:
-                    distance_interaction = (binding_pocket[i][-1], binding_pocket[i][1], ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
-                    atom_interactions.append(distance_interaction)
-                    distance_interaction = ()
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'NC2', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+                    else:
+                        if (x1 + y1 + z1 <= atomic_radius_types['NH1']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'NH1', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                elif binding_pocket[i][1] == 'CA':
+                    if binding_pocket[i][0] != 'GLY':
+                        if (x1 + y1 + z1 <= atomic_radius_types['CH1E']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CH1E', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                    else:
+                        if (x1 + y1 + z1 <= atomic_radius_types['CH2G']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CH2G', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                elif binding_pocket[i][1][0:2] == 'CZ':
+                    if binding_pocket[i][0] == 'ARG':
+                        if (x1 + y1 + z1 <= atomic_radius_types['CH0']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CH0', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                elif binding_pocket[i][1][0:2] == 'CG':
+                    if binding_pocket[i][0] in ['ASN','ASP']:
+                        if (x1 + y1 + z1 <= atomic_radius_types['CH0']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CH0', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                    elif binding_pocket[i][0] == 'LEU':
+                        if (x1 + y1 + z1 <= atomic_radius_types['CH1S']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CH1S', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+
+                    elif binding_pocket[i][0] == 'PHE':
+                        if (x1 + y1 + z1 <= atomic_radius_types['CF']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CF', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                    elif binding_pocket[i][0] == 'TYR':
+                        if (x1 + y1 + z1 <= atomic_radius_types['CY']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CY', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                    elif binding_pocket[i][0] == 'HIS':
+                        if (x1 + y1 + z1 <= atomic_radius_types['C5']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'C5', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                    elif binding_pocket[i][0] == 'TRP':
+                        if (x1 + y1 + z1 <= atomic_radius_types['C5W']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'C5W', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                    else:
+                        if (x1 + y1 + z1 <= atomic_radius_types['CH2P']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CH2P', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                elif binding_pocket[i][1] == 'CD':
+                    if binding_pocket[i][0] in ['GLN','GLU']:
+                        if (x1 + y1 + z1 <= atomic_radius_types['CH0']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CH0', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                    else:
+                        if (x1 + y1 + z1 <= atomic_radius_types['CH2P']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CH2P', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+
+                elif binding_pocket[i][1] == 'CB':
+                    if binding_pocket[i][0] in ['ILE','THR', 'VAL']:
+                        if (x1 + y1 + z1 <= atomic_radius_types['CH1S']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CH1S', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                    elif binding_pocket[i][0] == 'PRO':
+                        if (x1 + y1 + z1 <= atomic_radius_types['CH2P']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CH2P', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+
+                elif binding_pocket[i][1] == 'CH2':
+                    if binding_pocket[i][0] not in ['GLY','PRO']:
+                        if (x1 + y1 + z1 <= atomic_radius_types['CH2E']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CH2E', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+                    else:
+                        if (x1 + y1 + z1 <= atomic_radius_types['CR1W']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CR1W', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+
+                elif binding_pocket[i][1] == 'CH3':
+                    if (x1 + y1 + z1 <= atomic_radius_types['CH3E']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                        print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                    else:
+                        distance_interaction = (binding_pocket[i][-1], 'CH3E', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                        atom_interactions.append(distance_interaction)
+                        distance_interaction = ()
+
+                elif binding_pocket[i][1] == 'CH':
+                    if (x1 + y1 + z1 <= atomic_radius_types['CR1E']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                        print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                    else:
+                        distance_interaction = (binding_pocket[i][-1], 'CR1E', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                        atom_interactions.append(distance_interaction)
+                        distance_interaction = ()
+
+                elif binding_pocket[i][1] in ['OG','OG1','OH']:
+                    if binding_pocket[i][0] not in ['SER','THR','TYR']:
+                        if (x1 + y1 + z1 <= atomic_radius_types['OH1']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'OH1', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                elif binding_pocket[i][1] in ['OD2','OE2']:
+                    if (x1 + y1 + z1 <= atomic_radius_types['OC']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                        print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                    else:
+                        distance_interaction = (binding_pocket[i][-1], 'OC', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                        atom_interactions.append(distance_interaction)
+                        distance_interaction = ()
+
+
+                elif binding_pocket[i][1] in ['OD1','OE1']:
+                    if binding_pocket[0] in ['ASP','GLU']:
+                        if (x1 + y1 + z1 <= atomic_radius_types['OC']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'OC', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                    if binding_pocket[i][0] in ['ASN','GLN']:
+                        if (x1 + y1 + z1 <= atomic_radius_types['OS']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'OS', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+
+                elif binding_pocket[i][1] == 'NE1':
+                    if (x1 + y1 + z1 <= atomic_radius_types['NH1S']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                        print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                    else:
+                        distance_interaction = (binding_pocket[i][-1], 'NH1S', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                        atom_interactions.append(distance_interaction)
+                        distance_interaction = ()
+
+                elif binding_pocket[i][1] in ['NE','ND1']:
+                    if binding_pocket[i][0] in ['ARG','HIS']:
+                        if (x1 + y1 + z1 <= atomic_radius_types['NH1S']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'NH1S', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                elif binding_pocket[i][1] == 'NH2':
+                    if (x1 + y1 + z1 <= atomic_radius_types['NC2']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                        print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                    else:
+                        distance_interaction = (binding_pocket[i][-1], 'NC2', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                        atom_interactions.append(distance_interaction)
+                        distance_interaction = ()
+
+                elif binding_pocket[i][1] == 'NH1':
+                    if binding_pocket[i][0] == 'ARG':
+                        if (x1 + y1 + z1 <= atomic_radius_types['NC2']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'NC2', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                elif binding_pocket[i][1] in ['ND2','NE2']:
+                    if binding_pocket[i][0] in ['ASN','GLN']:
+                        if (x1 + y1 + z1 <= atomic_radius_types['NH2']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'NH2', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+
+                elif binding_pocket[i][1] == 'CZ2':
+                    if binding_pocket[i][0] == 'TRP':
+                        if (x1 + y1 + z1 <= atomic_radius_types['CR1W']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CR1W', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+
+                elif binding_pocket[i][1] == 'CZ':
+                    if binding_pocket[i][0] == 'TYR':
+                        if (x1 + y1 + z1 <= atomic_radius_types['CY2']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CY2', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                elif binding_pocket[i][1] == 'S':
+                    if binding_pocket[i][0] == 'CYS':
+                        if (x1 + y1 + z1 <= atomic_radius_types['SC']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'SC', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                    elif binding_pocket[i][0] == 'MET':
+                        if (x1 + y1 + z1 <= atomic_radius_types['SM']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'SM', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+
+                elif binding_pocket[i][1] == 'CE2':
+                    if (x1 + y1 + z1 <= atomic_radius_types['CW']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                        print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                    else:
+                        distance_interaction = (binding_pocket[i][-1], 'CW', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                        atom_interactions.append(distance_interaction)
+                        distance_interaction = ()
+
+                elif binding_pocket[i][1] == 'CD2':
+                    if binding_pocket[i][0] == 'TRP':
+                        if (x1 + y1 + z1 <= atomic_radius_types['CW']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CW', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                    elif binding_pocket[i][0] == 'HIS':
+                        if (x1 + y1 + z1 <= atomic_radius_types['CR1H']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CR1H', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+
+                elif binding_pocket[i][1] == 'CE1':
+                    if binding_pocket[i][0] == 'HIS':
+                        if (x1 + y1 + z1 <= atomic_radius_types['CRHH']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'CRHH', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                elif binding_pocket[i][1] == 'NZ':
+                    if binding_pocket[i][0] == 'LYS':
+                        if (x1 + y1 + z1 <= atomic_radius_types['NH3']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'NH3', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                elif binding_pocket[i][1] == 'N':
+                    if binding_pocket[i][0] == 'PRO':
+                        if (x1 + y1 + z1 <= atomic_radius_types['NP']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                            print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                        else:
+                            distance_interaction = (binding_pocket[i][-1], 'NP', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                            atom_interactions.append(distance_interaction)
+                            distance_interaction = ()
+
+                elif binding_pocket[i][1] == 'C':
+                    if (x1 + y1 + z1 <= atomic_radius_types['CP']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                        print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                    else:
+                        distance_interaction = (binding_pocket[i][-1], 'CP', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                        atom_interactions.append(distance_interaction)
+                        distance_interaction = ()
+
+                elif binding_pocket[i][1] == 'O':
+                    if (x1 + y1 + z1 <= atomic_radius_types['OP']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                        print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                    else:
+                        distance_interaction = (binding_pocket[i][-1], 'OP', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                        atom_interactions.append(distance_interaction)
+                        distance_interaction = ()
 
     for i in sorted(protein_atom_types):
         for j in sorted(ligand_atom_types):
@@ -418,6 +807,7 @@ def atomTypesDistanceCalc(binding_pocket, ligand):
 
     atom_types.sort()
 
+    print(atom_interactions)
 
     return atom_interactions, atom_types, ligand_atom_types, protein_atom_types
 
@@ -762,7 +1152,8 @@ def statsToCsv(laplacian_statistics, adjacency_statistics, expo, lorentz, inligp
 
     if at_types:
 
-        element_element = ['Br-CA', 'Br-CB', 'Br-CD', 'Br-CE', 'Br-CG', 'Br-CH', 'Br-CZ', 'Br-N', 'Br-O', 'Br-S', 'C-CA', 'C-CB', 'C-CD', 'C-CE', 'C-CG', 'C-CH', 'C-CZ', 'C-N', 'C-O', 'C-S', 'Cl-CA', 'Cl-CB', 'Cl-CD', 'Cl-CE', 'Cl-CG', 'Cl-CH', 'Cl-CZ', 'Cl-N', 'Cl-O', 'Cl-S', 'F-CA', 'F-CB', 'F-CD', 'F-CE', 'F-CG', 'F-CH', 'F-CZ', 'F-N', 'F-O', 'F-S', 'H-CA', 'H-CB', 'H-CD', 'H-CE', 'H-CG', 'H-CH', 'H-CZ', 'H-N', 'H-O', 'H-S', 'I-CA', 'I-CB', 'I-CD', 'I-CE', 'I-CG', 'I-CH', 'I-CZ', 'I-N', 'I-O', 'I-S', 'N-CA', 'N-CB', 'N-CD', 'N-CE', 'N-CG', 'N-CH', 'N-CZ', 'N-N', 'N-O', 'N-S', 'O-CA', 'O-CB', 'O-CD', 'O-CE', 'O-CG', 'O-CH', 'O-CZ', 'O-N', 'O-O', 'O-S', 'P-CA', 'P-CB', 'P-CD', 'P-CE', 'P-CG', 'P-CH', 'P-CZ', 'P-N', 'P-O', 'P-S', 'S-CA', 'S-CB', 'S-CD', 'S-CE', 'S-CG', 'S-CH', 'S-CZ', 'S-N', 'S-O', 'S-S']
+        element_element = ['Br-Br', 'Br-C', 'Br-C5', 'Br-C5W', 'Br-CF', 'Br-CH0', 'Br-CH1E', 'Br-CH1S', 'Br-CH2E', 'Br-CH2G', 'Br-CH2P', 'Br-CH3E', 'Br-CP', 'Br-CR1E', 'Br-CR1H', 'Br-CR1W', 'Br-CRHH', 'Br-CW', 'Br-CY', 'Br-CY2', 'Br-Cl', 'Br-F', 'Br-FE', 'Br-H', 'Br-I', 'Br-N', 'Br-NC2', 'Br-NH1', 'Br-NH1S', 'Br-NH2', 'Br-NH3', 'Br-NP', 'Br-O', 'Br-OC', 'Br-OH1', 'Br-OP', 'Br-OS', 'Br-P', 'Br-S', 'Br-SC', 'Br-SM', 'C-Br', 'C-C', 'C-C5', 'C-C5W', 'C-CF', 'C-CH0', 'C-CH1E', 'C-CH1S', 'C-CH2E', 'C-CH2G', 'C-CH2P', 'C-CH3E', 'C-CP', 'C-CR1E', 'C-CR1H', 'C-CR1W', 'C-CRHH', 'C-CW', 'C-CY', 'C-CY2', 'C-Cl', 'C-F', 'C-FE', 'C-H', 'C-I', 'C-N', 'C-NC2', 'C-NH1', 'C-NH1S', 'C-NH2', 'C-NH3', 'C-NP', 'C-O', 'C-OC', 'C-OH1', 'C-OP', 'C-OS', 'C-P', 'C-S', 'C-SC', 'C-SM', 'Cl-Br', 'Cl-C', 'Cl-C5', 'Cl-C5W', 'Cl-CF', 'Cl-CH0', 'Cl-CH1E', 'Cl-CH1S', 'Cl-CH2E', 'Cl-CH2G', 'Cl-CH2P', 'Cl-CH3E', 'Cl-CP', 'Cl-CR1E', 'Cl-CR1H', 'Cl-CR1W', 'Cl-CRHH', 'Cl-CW', 'Cl-CY', 'Cl-CY2', 'Cl-Cl', 'Cl-F', 'Cl-FE', 'Cl-H', 'Cl-I', 'Cl-N', 'Cl-NC2', 'Cl-NH1', 'Cl-NH1S', 'Cl-NH2', 'Cl-NH3', 'Cl-NP', 'Cl-O', 'Cl-OC', 'Cl-OH1', 'Cl-OP', 'Cl-OS', 'Cl-P', 'Cl-S', 'Cl-SC', 'Cl-SM', 'F-Br', 'F-C', 'F-C5', 'F-C5W', 'F-CF', 'F-CH0', 'F-CH1E', 'F-CH1S', 'F-CH2E', 'F-CH2G', 'F-CH2P', 'F-CH3E', 'F-CP', 'F-CR1E', 'F-CR1H', 'F-CR1W', 'F-CRHH', 'F-CW', 'F-CY', 'F-CY2', 'F-Cl', 'F-F', 'F-FE', 'F-H', 'F-I', 'F-N', 'F-NC2', 'F-NH1', 'F-NH1S', 'F-NH2', 'F-NH3', 'F-NP', 'F-O', 'F-OC', 'F-OH1', 'F-OP', 'F-OS', 'F-P', 'F-S', 'F-SC', 'F-SM', 'H-Br', 'H-C', 'H-C5', 'H-C5W', 'H-CF', 'H-CH0', 'H-CH1E', 'H-CH1S', 'H-CH2E', 'H-CH2G', 'H-CH2P', 'H-CH3E', 'H-CP', 'H-CR1E', 'H-CR1H', 'H-CR1W', 'H-CRHH', 'H-CW', 'H-CY', 'H-CY2', 'H-Cl', 'H-F', 'H-FE', 'H-H', 'H-I', 'H-N', 'H-NC2', 'H-NH1', 'H-NH1S', 'H-NH2', 'H-NH3', 'H-NP', 'H-O', 'H-OC', 'H-OH1', 'H-OP', 'H-OS', 'H-P', 'H-S', 'H-SC', 'H-SM', 'I-Br', 'I-C', 'I-C5', 'I-C5W', 'I-CF', 'I-CH0', 'I-CH1E', 'I-CH1S', 'I-CH2E', 'I-CH2G', 'I-CH2P', 'I-CH3E', 'I-CP', 'I-CR1E', 'I-CR1H', 'I-CR1W', 'I-CRHH', 'I-CW', 'I-CY', 'I-CY2', 'I-Cl', 'I-F', 'I-FE', 'I-H', 'I-I', 'I-N', 'I-NC2', 'I-NH1', 'I-NH1S', 'I-NH2', 'I-NH3', 'I-NP', 'I-O', 'I-OC', 'I-OH1', 'I-OP', 'I-OS', 'I-P', 'I-S', 'I-SC', 'I-SM', 'N-Br', 'N-C', 'N-C5', 'N-C5W', 'N-CF', 'N-CH0', 'N-CH1E', 'N-CH1S', 'N-CH2E', 'N-CH2G', 'N-CH2P', 'N-CH3E', 'N-CP', 'N-CR1E', 'N-CR1H', 'N-CR1W', 'N-CRHH', 'N-CW', 'N-CY', 'N-CY2', 'N-Cl', 'N-F', 'N-FE', 'N-H', 'N-I', 'N-N', 'N-NC2', 'N-NH1', 'N-NH1S', 'N-NH2', 'N-NH3', 'N-NP', 'N-O', 'N-OC', 'N-OH1', 'N-OP', 'N-OS', 'N-P', 'N-S', 'N-SC', 'N-SM', 'O-Br', 'O-C', 'O-C5', 'O-C5W', 'O-CF', 'O-CH0', 'O-CH1E', 'O-CH1S', 'O-CH2E', 'O-CH2G', 'O-CH2P', 'O-CH3E', 'O-CP', 'O-CR1E', 'O-CR1H', 'O-CR1W', 'O-CRHH', 'O-CW', 'O-CY', 'O-CY2', 'O-Cl', 'O-F', 'O-FE', 'O-H', 'O-I', 'O-N', 'O-NC2', 'O-NH1', 'O-NH1S', 'O-NH2', 'O-NH3', 'O-NP', 'O-O', 'O-OC', 'O-OH1', 'O-OP', 'O-OS', 'O-P', 'O-S', 'O-SC', 'O-SM', 'P-Br', 'P-C', 'P-C5', 'P-C5W', 'P-CF', 'P-CH0', 'P-CH1E', 'P-CH1S', 'P-CH2E', 'P-CH2G', 'P-CH2P', 'P-CH3E', 'P-CP', 'P-CR1E', 'P-CR1H', 'P-CR1W', 'P-CRHH', 'P-CW', 'P-CY', 'P-CY2', 'P-Cl', 'P-F', 'P-FE', 'P-H', 'P-I', 'P-N', 'P-NC2', 'P-NH1', 'P-NH1S', 'P-NH2', 'P-NH3', 'P-NP', 'P-O', 'P-OC', 'P-OH1', 'P-OP', 'P-OS', 'P-P', 'P-S', 'P-SC', 'P-SM', 'S-Br', 'S-C', 'S-C5', 'S-C5W', 'S-CF', 'S-CH0', 'S-CH1E', 'S-CH1S', 'S-CH2E', 'S-CH2G', 'S-CH2P', 'S-CH3E', 'S-CP', 'S-CR1E', 'S-CR1H', 'S-CR1W', 'S-CRHH', 'S-CW', 'S-CY', 'S-CY2', 'S-Cl', 'S-F', 'S-FE', 'S-H', 'S-I', 'S-N', 'S-NC2', 'S-NH1', 'S-NH1S', 'S-NH2', 'S-NH3', 'S-NP', 'S-O', 'S-OC', 'S-OH1', 'S-OP', 'S-OS', 'S-P', 'S-S', 'S-SC', 'S-SM']
+
 
         element_features = ['ligand']
         for elements in element_element:
