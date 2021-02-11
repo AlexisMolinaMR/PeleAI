@@ -801,6 +801,15 @@ def atomTypesDistanceCalc(binding_pocket, ligand):
                         atom_interactions.append(distance_interaction)
                         distance_interaction = ()
 
+                elif binding_pocket[i][1][0] == 'H':
+                    if (x1 + y1 + z1 <= atomic_radius_types['H']**2) or (x1 + y1 + z1 <= atomic_radius_types[ligand[i][-1]]**2):
+                        print("Distance of between atoms {} ({}) and {} ({}) from residues {} and {} -> Covalent interaction or in same residue".format(protein_ligand[i][-1], protein_ligand[i][1], protein_ligand[j][-1], protein_ligand[j][1],protein_ligand[i][0], protein_ligand[j][0], math.sqrt(x1 + y1 + z1)))
+
+                    else:
+                        distance_interaction = (binding_pocket[i][-1], 'OP', ligand[j][-1], ligand[j][1], binding_pocket[i][0], ligand[j][0], math.sqrt(x1 + y1 + z1))
+                        atom_interactions.append(distance_interaction)
+                        distance_interaction = ()
+
     for i in sorted(protein_atom_types):
         for j in sorted(ligand_atom_types):
             atom_types.append(j + '-' + i)
