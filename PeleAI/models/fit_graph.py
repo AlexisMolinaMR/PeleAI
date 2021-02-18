@@ -55,7 +55,7 @@ def read_graph_data(path):
     Read csv file with features extracted for each pose.
     '''
 
-    d = pd.read_csv(path, index_col=0)
+    d = pd.read_csv(path)
     data = d.copy()
 
     return data
