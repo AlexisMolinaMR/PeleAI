@@ -7,7 +7,7 @@
 
 The goal of PeleAI-3D is to create target-specific scoring functions from simulation data obtained from molecular simulations methodologies such as Monte-Carlo or docking.
 
-To do so an graph-based topological description of the binding site containing the ligand is computed, which serves later for fitting a model that predictis either the activitiy or the binding energy of the given pose. 
+To do so an graph-based topological description of the binding site containing the ligand is computed, which serves later for fitting a model that predicts either the activitiy or the binding energy of the given pose. 
 
 ## Requirements
 
@@ -54,6 +54,7 @@ nodes:
 #control file for PeleAI3D - Fitting a model
 
 path_graph: 
+output: 
 test_size:
 seed: 
 task: 
