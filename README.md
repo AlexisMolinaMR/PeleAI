@@ -89,3 +89,12 @@ scaler:
 algorithm: 
 ``` 
 
+### Execution
+
+You may pass the _input.yaml_ file to the ```peleAI3d.py``` as follows:
+
+```
+python3 peleAI3d.py input.yaml
+```
+
+The results will be written to the folder indicated in the ```output``` argument of the input file.
