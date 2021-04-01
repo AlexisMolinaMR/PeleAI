@@ -11,6 +11,14 @@ To do so an graph-based topological description of the binding site containing t
 
 ## Requirements
 
+Install the conda version of ```rdkit``` and activate the evironment before installing the required packages:
+
+```
+conda create -c conda-forge -n my-rdkit-env rdkit
+conda activate my-rdkit-env
+```
+Then, you can install:
+
 ```
 numpy==1.19.0
 pandas==1.1.4
