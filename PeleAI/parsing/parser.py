@@ -1,6 +1,6 @@
 import pandas as pd
 
-from prody import parsePDB
+from prody import parsePDB, writePDB
 
 
 def PDBParser(path):
@@ -28,6 +28,17 @@ def PDBParser(path):
     p = parsePDB(path)
 
     return pose_store, p
+
+
+def ligand_parse_write(path, out):
+
+    pose = parsePDB(path)
+
+    writePDB(out + 'lig_' + path.split('/')[-1], pose.select('hetero and resname UNK'))
+
+    ligand_path = out + 'lig_' + path.split('/')[-1]
+
+    return ligand_path
 
 
 def read_graph_data(path):

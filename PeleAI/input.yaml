@@ -1,7 +1,7 @@
 #control file for PeleAI3D
 
-#path: "/home/alexis/data/graph_data/trial/"
-output: "/home/alexis/Desktop/"
+path: "/home/alexis/data/graph_data/trial/"
+output: "/home/alexis/data/graph_data/lig_atypes/"
 run_name: "trial"
 ligand_name: "UNK"
 selection_radius: 20
@@ -12,7 +12,7 @@ nodes: 'atoms'
 #pipe: True
 #target: ''
 # ------------------------------------
-path_graph: '/home/alexis/data/graph_data/target2_lig1/atom_types/at_types_prot_L_stats_expo_energies.csv'
+#path_graph: '/home/alexis/data/graph_data/target2_lig1/atom_types/at_types_prot_L_stats_expo_energies.csv'
 test_size: 0.3
 seed: 42
 task: 'regression'

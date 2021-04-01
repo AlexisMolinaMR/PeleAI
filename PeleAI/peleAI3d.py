@@ -5,9 +5,9 @@ import os
 
 import argparse as ap
 
-from parsing.parser import PDBParser, read_graph_data
+from parsing.parser import PDBParser, ligand_parse_write, read_graph_data
 
-from graph.selection import binding_pocket_selection
+from graph.selection import binding_pocket_selection, ligand_atom_type_calc
 from graph.distComp import elementsDistanceCalc, atomTypesDistanceCalc
 from graph.graph_generator import atomSubgraphsWeights, elementSubgraphsWeights, laplacianMatrix, adjacencyMatrix
 from graph.statistics import laplacianStats, adjacencyStats
@@ -50,8 +50,12 @@ def main():
                 pose_store=pose_store, p=prody_parsed, ligand_name=param_args['ligand_name'], selection_radius=param_args['selection_radius'], center=param_args['center'])
 
             if param_args['nodes'] == 'atoms':
+                ligand_path = ligand_parse_write(
+                    path=param_args['path'] + pose, out=param_args['output'])
+                selected_ligand_at = ligand_atom_type_calc(
+                    ligand=selected_ligand, ligand_path=ligand_path)
                 interactions, atom_types, ligand_atom_types, protein_atom_types = atomTypesDistanceCalc(
-                    binding_pocket=selected_protein, ligand=selected_ligand)
+                    binding_pocket=selected_protein, ligand=selected_ligand_at)
                 final_weigths, atom_combinations = atomSubgraphsWeights(atom_interactions=interactions, types=atom_types, decay_function=param_args['decay_function'],
                                                                         ligand_atom_types=ligand_atom_types, protein_atom_types=protein_atom_types)
             elif param_args['nodes'] == 'elements':
@@ -90,62 +94,62 @@ def main():
             train, activity_train, test, activity_test = data_splitting_classification(
                 data=data, test_size=param_args['test_size'], seed=param_args['seed'])
 
-               if 'algorithm' in param_args:
+            if 'algorithm' in param_args:
 
-                    if param_args['algorithm'] == 'GBC':
-
-                        best_lr, best_train_acc, best_test_acc = LM.GBC_optimization(
-                            train=train, activity_train=activity_train, test=test, activity_test=activity_test)
-                        cf, report, MCC = LM.GBC(train=train, activity_train=activity_train,
-                                                 test=test, activity_test=activity_test, best_lr=best_lr)
-
-                        classification_outputs = {'GBC_optimization': [best_lr, best_train_acc, best_test_acc],
-                                                  'GBC': [cf, report, MCC]}
-
-                        write_classification_report_GBR(
-                            classification_outputs=classification_outputs, out_file=param_args['output'] + 'classification_report.out')
-
-                    elif param_args['algorithm'] == 'XGBC':
-
-                        XGB_accuracy, cf_XGB, report_XGB, MCC_XGB = LM.XGBoost(
-                            train=train, activity_train=activity_train, test=test, activity_test=activity_test)
-
-                        classification_outputs = {
-                            'XGB': [XGB_accuracy, cf_XGB, report_XGB, MCC_XGB]}
-
-                        write_classification_report_XGBR(
-                            classification_outputs=classification_outputs, out_file=param_args['output'] + 'classification_report.out')
-
-                    elif param_args['algorithm'] == 'LGBC':
-
-                        lgb_accuracy, cf_lgb, report_lgb, MCC_lgb = LM.LigthGB(
-                            train=train, activity_train=activity_train, test=test, activity_test=activity_test)
-
-                        classification_outputs = {
-                            'LGBC': [lgb_accuracy, cf_lgb, report_lgb, MCC_lgb]}
-
-                        write_classification_report_LGBR(
-                            classification_outputs=classification_outputs, out_file=param_args['output'] + 'classification_report.out')
-
-                else:
+                if param_args['algorithm'] == 'GBC':
 
                     best_lr, best_train_acc, best_test_acc = LM.GBC_optimization(
                         train=train, activity_train=activity_train, test=test, activity_test=activity_test)
                     cf, report, MCC = LM.GBC(train=train, activity_train=activity_train,
                                              test=test, activity_test=activity_test, best_lr=best_lr)
 
+                    classification_outputs = {'GBC_optimization': [best_lr, best_train_acc, best_test_acc],
+                                              'GBC': [cf, report, MCC]}
+
+                    write_classification_report_GBR(
+                        classification_outputs=classification_outputs, out_file=param_args['output'] + 'classification_report.out')
+
+                elif param_args['algorithm'] == 'XGBC':
+
                     XGB_accuracy, cf_XGB, report_XGB, MCC_XGB = LM.XGBoost(
                         train=train, activity_train=activity_train, test=test, activity_test=activity_test)
+
+                    classification_outputs = {
+                        'XGB': [XGB_accuracy, cf_XGB, report_XGB, MCC_XGB]}
+
+                    write_classification_report_XGBR(
+                        classification_outputs=classification_outputs, out_file=param_args['output'] + 'classification_report.out')
+
+                elif param_args['algorithm'] == 'LGBC':
 
                     lgb_accuracy, cf_lgb, report_lgb, MCC_lgb = LM.LigthGB(
                         train=train, activity_train=activity_train, test=test, activity_test=activity_test)
 
-                    classification_outputs = {'GBC_optimization': [best_lr, best_train_acc, best_test_acc],
-                                              'GBC': [cf, report, MCC], 'XGB': [XGB_accuracy, cf_XGB, report_XGB, MCC_XGB],
-                                              'LGBC': [lgb_accuracy, cf_lgb, report_lgb, MCC_lgb]}
+                    classification_outputs = {
+                        'LGBC': [lgb_accuracy, cf_lgb, report_lgb, MCC_lgb]}
 
-            write_classification_report(classification_outputs=classification_outputs,
-                                        out_file=param_args['output'] + 'classification_report.out')
+                    write_classification_report_LGBR(
+                        classification_outputs=classification_outputs, out_file=param_args['output'] + 'classification_report.out')
+
+            else:
+
+                best_lr, best_train_acc, best_test_acc = LM.GBC_optimization(
+                    train=train, activity_train=activity_train, test=test, activity_test=activity_test)
+                cf, report, MCC = LM.GBC(train=train, activity_train=activity_train,
+                                         test=test, activity_test=activity_test, best_lr=best_lr)
+
+                XGB_accuracy, cf_XGB, report_XGB, MCC_XGB = LM.XGBoost(
+                    train=train, activity_train=activity_train, test=test, activity_test=activity_test)
+
+                lgb_accuracy, cf_lgb, report_lgb, MCC_lgb = LM.LigthGB(
+                    train=train, activity_train=activity_train, test=test, activity_test=activity_test)
+
+                classification_outputs = {'GBC_optimization': [best_lr, best_train_acc, best_test_acc],
+                                          'GBC': [cf, report, MCC], 'XGB': [XGB_accuracy, cf_XGB, report_XGB, MCC_XGB],
+                                          'LGBC': [lgb_accuracy, cf_lgb, report_lgb, MCC_lgb]}
+
+                write_classification_report(classification_outputs=classification_outputs,
+                                            out_file=param_args['output'] + 'classification_report.out')
 
         elif param_args['task'] == 'regression':
 

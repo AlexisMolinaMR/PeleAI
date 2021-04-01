@@ -1,4 +1,8 @@
 import math
+import rdkit
+
+from rdkit import Chem
+from rdkit.Chem import rdchem
 
 from prody import calcCenter
 
@@ -168,3 +172,34 @@ def binding_pocket_selection(pose_store, p, ligand_name, selection_radius, cente
         print('Total number of atoms selected: {}'.format(len(binding_pocket)+len(ligand)))
 
     return binding_pocket, ligand
+
+
+def ligand_atom_type_calc(ligand, ligand_path):
+
+    ligand_atom_types = {'H': 0, 'C': 0, 'N': 0, 'O': 0,
+                         'F': 0, 'P': 0, 'S': 0, 'Cl': 0, 'Br': 0, 'I': 0}
+
+    mol = Chem.MolFromPDBFile(ligand_path)
+
+    index = 0
+
+    while index <= mol.GetNumAtoms()-1:
+
+        atomObj = mol.GetAtomWithIdx(index)
+        symbol = str(atomObj.GetSymbol())
+
+        ligand_atom_types[symbol] += 1
+
+        Hybridization = str(atomObj.GetHybridization())
+        Aromacity = atomObj.GetIsAromatic()
+
+        if Aromacity:
+            ligand[index] = ligand[index] + \
+                (symbol + '_' + Hybridization + '_AROM',)
+        else:
+            ligand[index] = ligand[index] + \
+                (symbol + '_' + Hybridization,)
+
+        index += 1
+
+    return ligand
