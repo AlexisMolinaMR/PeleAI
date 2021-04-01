@@ -2,11 +2,12 @@
 * [PeleAI](#PeleAI)
 * [Requirements](##Requirements)
 * [Usage](#Usage)
-* [To developers](#To-developers)
 
 # PeleAI
 
-Create scoring functions from simulation.
+The goal of PeleAI-3D is to create target-specific scoring functions from simulation data obtained from molecular simulations methodologies such as Monte-Carlo or docking.
+
+To do so an graph-based topological description of the binding site containing the ligand is computed, which serves later for fitting a model that predicts either the activitiy or the binding energy of the given pose. 
 
 ## Requirements
 
@@ -23,49 +24,77 @@ lightgbm==3.1.0
 
 ## Usage
 
-### Generate graph statistics
+The methodology can be run in three different fashions: _graph_, _fitting_ or _pipeline_. 
 
-**Arguments**
+The first one, _graph_, is dedicated to generate statistics out from a graph topology of the ligand-binding site complex without fitting the data in any model. The second one, _fitting_, will provide several options to use the graph based statistics previously generated to fit either a regression or a classification task.
+The last one, _pipeline_, provides end-to-end results out of the given input poses. It executes _graph_, whose output is passed to _fitting_ which will report the model results.
 
-`python3  graph_generator.py [-h] -i POSE -l LIGAND -r RADIUS [-gc] [-ds] (-ex | -lo) [-lp]`
+### Generate graph statistics (_graph_)
 
+**Parameters**
 
-**Basic usage (recomended)**
+```
+#control file for PeleAI3D - Graph statistics
 
-`python3 generate_graph.py -i path/to/pose.pdb -l LIG -r RADIUS -gc -ex`
+path: 
+output: 
+run_name: 
+ligand_name: 
+selection_radius: 
+center: 
+decay_function:
+nodes: 
+``` 
 
-You will need a bash script to run through several poses. An example is provided in _run_graph.sh_.
+### Fitting graph statistics (_fitting_)
 
-The output will be two csv files, one for Laplacian matrices (_L_stats_ex.csv_) and another for Adjacency matrices (_A_stats_ex.csv_). Use _L_stats_ex.csv_.
+**Parameters**
 
-### Fit models
+```
+#control file for PeleAI3D - Fitting a model
 
-**Arguments**
+path_graph: 
+output: 
+test_size:
+seed: 
+task: 
+cpus: 
+scaler: 
+algorithm: 
+``` 
 
-`python3 fit_graph.py -i /path/to/L_stats_ex.csv -t TEST_SIZE -s SEED (-c | -r) [-d]`
+### Pipelining (_pipeline_)
 
-#### Classification
+**Parameters**
 
-`python3 fit_graph.py -i /path/to/L_stats_ex.csv -t TEST_SIZE -s SEED -c`
+```
+#control file for PeleAI3D - Pipeline
+path: 
+output: 
+run_name: 
+ligand_name: 
+selection_radius: 
+center: 
+decay_function:
+nodes: 
+# ------------------------------------
+#pipe: True
+#target: 
+# ------------------------------------
+test_size: 
+seed: 
+task: 
+cpus: 
+scaler: 
+algorithm: 
+``` 
 
-Classification will be performed using three gradient boosting regressors: Gradient Boosting Regressor, eXtreme Gradient Boosting Regressor and Light Gradient Boosting Regresssor.
+### Execution
 
-##### Data scaling
+You may pass the _input.yaml_ file to the ```peleAI3d.py``` as follows:
 
-If desired, all sklearn scalers will be fit and evaluated.
+```
+python3 peleAI3d.py input.yaml
+```
 
-`python3 fit_graph.py -i /path/to/L_stats_ex.csv -t TEST_SIZE -s SEED -c -d`
-
-#### Regression
-
-Not tested. Avoid for now.
-
-## To developers
-
-### Protein-ligand branch
-
-Commit to this branch if developing for protein-ligand interactions.
-
-### Protein-protein branch
-
-Commit to this brach if developing for protein-protein interactions.
+The results will be written to the folder indicated in the ```output``` argument of the input file.
