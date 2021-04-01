@@ -11,9 +11,7 @@ To do so an graph-based topological description of the binding site containing t
 
 ![PeleAI3D_Generative_AZ (1)](https://user-images.githubusercontent.com/48655676/113339746-3c54cf80-932b-11eb-8bd7-b05cf3f092b6.png)
 
-![PeleAI3D_Generative_AZ](https://user-images.githubusercontent.com/48655676/113339768-41198380-932b-11eb-9e74-f244a2508ae2.png)
-
-
+![PeleAI3D_Generative_AZ](https://user-images.githubusercontent.com/48655676/113339912-7a51f380-932b-11eb-9d24-f6566a554cba.png)
 
 ## Requirements
 
