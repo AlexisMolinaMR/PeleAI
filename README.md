@@ -9,6 +9,12 @@ The goal of PeleAI-3D is to create target-specific scoring functions from simula
 
 To do so an graph-based topological description of the binding site containing the ligand is computed, which serves later for fitting a model that predicts either the activitiy or the binding energy of the given pose. 
 
+
+![alt text](http://url/to/img.png![image](https://user-images.githubusercontent.com/48655676/113339600-fd267e80-932a-11eb-8e11-6873c3323655.png)
+)
+
+
+
 ## Requirements
 
 Install the conda version of ```rdkit``` and activate the evironment before installing the required packages:
