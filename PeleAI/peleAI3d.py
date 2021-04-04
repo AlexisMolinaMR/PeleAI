@@ -51,7 +51,7 @@ def main():
 
             if param_args['nodes'] == 'atoms':
                 ligand_path = ligand_parse_write(
-                    path=param_args['path'] + pose, out=param_args['output'])
+                    path=param_args['path'] + pose, out=param_args['output'], lig_name=param_args['ligand_name'])
                 selected_ligand_at = ligand_atom_type_calc(
                     ligand=selected_ligand, ligand_path=ligand_path)
                 interactions, atom_types, ligand_atom_types, protein_atom_types = atomTypesDistanceCalc(

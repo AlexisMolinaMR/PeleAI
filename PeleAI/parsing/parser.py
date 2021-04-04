@@ -30,11 +30,12 @@ def PDBParser(path):
     return pose_store, p
 
 
-def ligand_parse_write(path, out):
+def ligand_parse_write(path, out, lig_name):
 
     pose = parsePDB(path)
 
-    writePDB(out + 'lig_' + path.split('/')[-1], pose.select('hetero and resname UNK'))
+    writePDB(out + 'lig_' + path.split('/')[-1],
+             pose.select('hetero and resname {}'.format(lig_name)))
 
     ligand_path = out + 'lig_' + path.split('/')[-1]
 
