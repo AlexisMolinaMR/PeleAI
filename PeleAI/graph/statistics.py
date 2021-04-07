@@ -112,7 +112,7 @@ def adjacencyStats(matrices, pose):
             print("Second power of eigenvalues {}".format(sec_pow))
 
             if np.iscomplex(maximum):
-                maximum = np.real(maximum, tol=1)
+                maximum = np.real(maximum)
             adjacency_statistics.append(maximum)
             if np.iscomplex(minimum):
                 minimum = np.real(minimum)
