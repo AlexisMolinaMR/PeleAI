@@ -32,6 +32,7 @@ sklearn
 xgboost
 lightgbm
 pyyaml
+seaborn
 ```
 
 `pip install -r requirements.txt`
