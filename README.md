@@ -31,6 +31,7 @@ prody==1.11
 sklearn
 xgboost
 lightgbm
+pyyaml
 ```
 
 `pip install -r requirements.txt`
