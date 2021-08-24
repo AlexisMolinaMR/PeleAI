@@ -12,6 +12,13 @@ from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier, XGBRegressor
 from lightgbm import LGBMClassifier, LGBMRegressor
 
+from keras.models import Sequential
+from keras.layers import Dense, Activation
+from keras import optimizers
+from keras.layers import Dropout
+from keras.optimizers import Nadam
+
+from utils.utils import r_squared
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 warnings.filterwarnings("ignore")
@@ -283,3 +290,57 @@ class LearningModels():
         MAE = mean_absolute_error(bindingEnergy_test, predictions)
 
         return predictions, R2_test, MSE, MAE, best_params
+
+    @staticmethod
+    def FFNN_profile(learning_rate):
+        '''
+        '''
+
+        NN_model = Sequential()
+
+        NN_model.add(Dense(2048, kernel_initializer='normal',input_dim = train.shape[1], activation=tf.keras.layers.LeakyReLU()))
+        NN_model.add(Dense(2048,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+        NN_model.add(Dense(2048,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+        NN_model.add(Dense(2048,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+
+        NN_model.add(Dense(2048,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+        NN_model.add(Dense(2048,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+
+        NN_model.add(Dense(2048,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+        NN_model.add(Dense(2048,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+        NN_model.add(Dense(2048,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+        NN_model.add(Dense(1024,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+
+        NN_model.add(Dense(1, activation='linear'))
+
+        opt = tf.keras.optimizers.Nadam(learning_rate=learning_rate)
+
+        NN_model.compile(loss=tf.keras.losses.Huber(), optimizer=opt, metrics=['mse','mae',r_squared])
+        NN_model.summary()
+
+        return NN_model
+
+    @staticmethod
+    def FFNN_clustering(learning_rate):
+        '''
+        '''
+
+        NN_model = Sequential()
+
+        NN_model.add(Dense(64, kernel_initializer='normal',input_dim = train.shape[1], activation=tf.keras.layers.LeakyReLU()))
+        NN_model.add(Dense(64,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+        NN_model.add(Dense(32,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+
+        NN_model.add(Dense(16,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+        NN_model.add(Dense(8,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+        NN_model.add(Dense(4,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+        NN_model.add(Dense(2,activation=tf.keras.layers.LeakyReLU(), use_bias=True))
+
+        NN_model.add(Dense(1, activation='linear'))
+
+        opt = tf.keras.optimizers.Nadam(learning_rate=learning_rate)
+
+        NN_model.compile(loss=tf.keras.losses.Huber(), optimizer=opt, metrics=['mse','mae',r_squared])
+        NN_model.summary()
+
+        return NN_model

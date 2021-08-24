@@ -2,9 +2,15 @@ import csv
 import os
 
 import pandas as pd
-
+import seaborn as sns
 from os import listdir
 
+
+def r_squared(y_true, y_pred):
+    from keras import backend as K
+    SS_res =  K.sum(K.square( y_true-y_pred ))
+    SS_tot = K.sum(K.square( y_true - K.mean(y_true) ) )
+    return ( 1 - SS_res/(SS_tot + K.epsilon()) )
 
 def list_files(path):
     pose_list = [f for f in listdir(path) if f.endswith('.' + 'pdb')]
@@ -295,5 +301,101 @@ def write_regression_report(regression_outputs, out_file):
         print("Best test R2: {}\n".format(regression_outputs['MLPR'][2]), file=out)
         print("Mean squared error: {}\n".format(regression_outputs['MLPR'][3]), file=out)
         print("Mean absolute error: {}\n".format(regression_outputs['MLPR'][4]), file=out)
+
+    return 0
+
+def write_regression_report_ffnn(results, param_args, out_file):
+
+    with open(out_file, 'a') as out:
+
+        print("#####################################", file=out)
+        print('Scaler: MinMax'), file=out)
+        print("Feed Forward Neural Network\n", file=out)
+        print("Learning rate {}\n".format(param_args['learning_rate']), file=out)
+
+        print("#####################################", file=out)
+        print("##############  Train  ##############", file=out)
+        print("#####################################\n", file=out)
+
+        print("Train R2: {}".format(results[0][-1]), file=out)
+        print("Mean squared error: {}\n".format(results[0][1]), file=out)
+        print("Mean absolute error: {}\n".format(results[0][2]), file=out)
+
+        print("#####################################", file=out)
+        print("##############   Val   ##############", file=out)
+        print("#####################################\n", file=out)
+
+        print("Val R2: {}".format(results[0][-1]), file=out)
+        print("Mean squared error: {}\n".format(results[0][1]), file=out)
+        print("Mean absolute error: {}\n".format(results[0][2]), file=out)
+
+        print("#####################################", file=out)
+        print("###############  Test  ##############", file=out)
+        print("#####################################\n", file=out)
+
+        print("Test R2: {}".format(results[0][-1]), file=out)
+        print("Mean squared error: {}\n".format(results[0][1]), file=out)
+        print("Mean absolute error: {}\n".format(results[0][2]), file=out)
+
+    return 0
+
+
+def train_plots(history, out_file):
+    '''
+    '''
+
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'val'], loc='upper right')
+    plt.savefig(out_file + 'loss_plot.png')
+
+    plt.plot(history.history['mse'])
+    plt.plot(history.history['val_mse'])
+    plt.title('model mse')
+    plt.ylabel('mse')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'val'], loc='upper right')
+    plt.savefig(out_file + 'mse_plot.png')
+
+
+    plt.plot(history.history['mae'])
+    plt.plot(history.history['val_mae'])
+    plt.title('model mae')
+    plt.ylabel('mae')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'val'], loc='upper right')
+    plt.savefig(out_file + 'mae_plot.png')
+
+
+    return 0
+
+
+def target_plot(test_pred, ligand_test, bindingEnergy_test, ligandRMSD_test, out_file):
+    '''
+    '''
+
+    test_pred_l = []
+
+    for i in test_pred:
+      test_pred_l.append(i[0])
+
+    ligand_test_d = pd.DataFrame(ligand_test)
+
+    ligand_test_d['predicted_binding'] = test_pred_l
+    ligand_test_d['bindingEnergy'] = bindingEnergy_test
+    ligand_test_d['ligandRMSD'] = ligandRMSD_test
+
+    ligand_test_d['energy_difference'] = abs(ligand_test_d['predicted_binding'] - ligand_test_d['bindingEnergy'])
+
+    plt.figure(figsize=(10,10))
+    sns.scatterplot(data=ligand_test_d, x="ligandRMSD", y="predicted_binding", hue="energy_difference")
+    plt.savefig(out_file + 'predicted_target.png')
+
+    plt.figure(figsize=(10,10))
+    sns.scatterplot(data=ligand_test_d, x="ligandRMSD", y="bindingEnergy")
+    plt.savefig(out_file + 'real_target.png')
 
     return 0

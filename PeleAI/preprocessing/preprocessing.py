@@ -46,6 +46,51 @@ def data_splitting_regression(data, test_size, seed):
 
     return train, bindingEnergy_train, test, bindingEnergy_test, ligands_test
 
+def data_splitting_ffnn(data, seed):
+    '''
+    Split the date in train and test sets if regression problem.
+    '''
+
+    train, val, test = np.split(data.sample(frac=1, random_state=seed), [int(.6*len(data)), int(.8*len(data))])
+
+    if 'bindingEnergy' in list(data.columns):
+
+        bindingEnergy_train = train['bindingEnergy']
+        bindingEnergy_test = test['bindingEnergy']
+        bindingEnergy_val = val['bindingEnergy']
+
+        train.drop(['bindingEnergy'],axis=1, inplace=True)
+        test.drop(['bindingEnergy'], axis=1, inplace=True)
+        val.drop(['bindingEnergy'], axis=1, inplace=True)
+
+
+    else:
+
+        bindingEnergy_train = train['IC50']
+        bindingEnergy_test = test['IC50']
+        bindingEnergy_val = val['IC50']
+
+        train.drop(['IC50'],axis=1, inplace=True)
+        test.drop(['IC50'], axis=1, inplace=True)
+        val.drop(['IC50'], axis=1, inplace=True)
+
+
+    if 'ligandRMSD' in data.columns:
+
+        ligandRMSD_test = test['ligandRMSD']
+
+        train.drop(['ligandRMSD'],axis=1, inplace=True)
+        test.drop(['ligandRMSD'], axis=1, inplace=True)
+        val.drop(['ligandRMSD'], axis=1, inplace=True)
+
+    else:
+
+        ligandRMSD_test = None
+
+    ligand_test = test['ligand']
+
+    return train, bindingEnergy_train, val, bindingEnergy_val, test, bindingEnergy_test, ligands_test, ligandRMSD_test
+
 
 class Scaler():
     '''
@@ -76,6 +121,24 @@ class Scaler():
         test = scaler.transform(test)
 
         return train, test
+
+    @staticmethod
+    def min_max_scaler_ffnn(train, val, test):
+        '''
+        Transform features by scaling each feature to a given range. Set on default (0,1).
+        '''
+
+        scaler = MinMaxScaler()
+
+        x = train.values
+        x_scaled = scaler.fit_transform(x)
+        train = pd.DataFrame(x_scaled)
+        val_s = scaler.transform(val)
+        val = val_s
+        test_s = scaler.transform(test)
+        test = test_s
+
+        return train, val, test
 
     @staticmethod
     def max_abs_scaler(train, test):
