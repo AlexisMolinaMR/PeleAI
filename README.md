@@ -18,18 +18,19 @@ To do so an graph-based topological description of the binding site containing t
 Install the conda version of ```rdkit``` and activate the evironment before installing the required packages:
 
 ```
-conda create -c conda-forge -n my-rdkit-env rdkit
-conda activate my-rdkit-env
+conda create -c conda-forge -n PeleAI rdkit
+conda activate PeleAI
 ```
 Then, you can install:
 
 ```
+tensorflow
 numpy==1.19.0
 pandas==1.1.4
 prody==1.11
-sklearn==0.23
-xgboost==1.3.0
-lightgbm==3.1.0
+sklearn
+xgboost
+lightgbm
 ```
 
 `pip install -r requirements.txt`
@@ -56,6 +57,25 @@ selection_radius:
 center: 
 decay_function:
 nodes: 
+``` 
+
+### Fitting graph statistics (_fitting_ffnn_)
+
+**Parameters**
+
+```
+#control file for PeleAI3D - Fitting a Feed Forward Neural Nerwork
+
+path_graph: /path/to/folder/with/pdb/from/profile/
+output: /path/to/output/
+seed: 42
+task: regression
+cpus: -1
+algorithm: ffnn
+learning_rate: 0.0001
+epochs: 1000
+batch_size: 64
+pelePrep: profile
 ``` 
 
 ### Fitting graph statistics (_fitting_)
