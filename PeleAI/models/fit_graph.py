@@ -2,6 +2,8 @@ import re
 import os
 import warnings
 
+import tensorflow as tf
+
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import classification_report, confusion_matrix, matthews_corrcoef, mean_squared_error, mean_absolute_error
 from sklearn.model_selection import StratifiedKFold, train_test_split, GridSearchCV, RandomizedSearchCV
@@ -16,7 +18,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation
 from keras import optimizers
 from keras.layers import Dropout
-from keras.optimizers import Nadam
+from tensorflow.keras.optimizers import Nadam
 
 from utils.utils import r_squared
 
@@ -292,7 +294,7 @@ class LearningModels():
         return predictions, R2_test, MSE, MAE, best_params
 
     @staticmethod
-    def FFNN_profile(learning_rate):
+    def FFNN_profile(train, val, test, learning_rate):
         '''
         '''
 
@@ -321,7 +323,7 @@ class LearningModels():
         return NN_model
 
     @staticmethod
-    def FFNN_clustering(learning_rate):
+    def FFNN_clustering(train, val, test, learning_rate):
         '''
         '''
 

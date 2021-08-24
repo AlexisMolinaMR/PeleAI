@@ -17,7 +17,7 @@ from graph.graph_generator import atomSubgraphsWeights, elementSubgraphsWeights,
 from graph.statistics import laplacianStats, adjacencyStats
 
 from utils.utils import list_files, append_targets, statsToCsv, write_classification_report, write_regression_report
-from utils.utils import write_regression_report_GBR, write_regression_report_XGBR, write_regression_report_LGBR, write_regression_report_MLPR, write_regression_report_ffnn
+from utils.utils import write_regression_report_GBR, write_regression_report_XGBR, write_regression_report_LGBR, write_regression_report_MLPR, write_regression_report_ffnn, train_plots, target_plot
 
 from preprocessing.preprocessing import dataset_preparation, data_splitting_regression, data_splitting_classification, Scaler, data_splitting_ffnn
 from models.fit_graph import LearningModels
@@ -157,51 +157,53 @@ def main():
 
         elif param_args['task'] == 'regression':
 
-            if param_args['algorithm'] == 'FFNN':
+            if param_args['algorithm'] == 'ffnn':
 
                 S = Scaler()
 
-                train, bindingEnergy_train, val, bindingEnergy_val, test, bindingEnergy_test,
-                    ligands_test, ligandRMSD_test = data_splitting_ffnn(data=data,
+                train, bindingEnergy_train, val, bindingEnergy_val, test, bindingEnergy_test, ligand_test, ligandRMSD_test = data_splitting_ffnn(data=data,
                                                                         seed=param_args['seed'])
 
                 train, val, test = S.min_max_scaler_ffnn(train=train, val=val, test=test)
 
                 if param_args['pelePrep'] == 'profile':
-                    NN_model = LM.FFNN_profile(param_args['learning_rate'])
+                    NN_model = LM.FFNN_profile(train, val, test, param_args['learning_rate'])
                 else:
-                    NN_model = LM.FFNN_clustering(param_args['learning_rate'])
+                    NN_model = LM.FFNN_clustering(train, val, test, param_args['learning_rate'])
 
                 checkpoint_name = 'weights.hdf5'
                 checkpoint = ModelCheckpoint(checkpoint_name, monitor='val_loss', verbose = 1, save_best_only = True, mode ='auto')
                 callbacks_list = [tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=5), checkpoint]
 
                 history = NN_model.fit(train, bindingEnergy_train, epochs=param_args['epochs'],
-                                        seed=param_args['epochs'], batch_size=param_args['batch_size'],
-                                        validation_data=(val, bindingEnergy_val), callbacks=callbacks_list)
+                                        batch_size=param_args['batch_size'], validation_data=(val, bindingEnergy_val),
+                                        callbacks=callbacks_list)
 
                 results_train = NN_model.evaluate(train, bindingEnergy_train)
                 results_val = NN_model.evaluate(val, bindingEnergy_val)
                 results_test = NN_model.evaluate(test, bindingEnergy_test)
 
-                r2_train = r2_score(bindingEnergy_train, train_pred)
-                r2_val = r2_score(bindingEnergy_val, val_pred)
-                r2_test = r2_score(bindingEnergy_val, test_pred)
-
-                results = [results_train.append(r2_train), results_val.append(r2_val),
-                            results_test.append(r2_test)]
-
-                write_regression_report_ffnn(results, param_args, param_args['output'])
-
                 train_pred = NN_model.predict(train)
                 val_pred = NN_model.predict(val)
                 test_pred = NN_model.predict(test)
+
+                r2_train = r2_score(bindingEnergy_train, train_pred)
+                r2_val = r2_score(bindingEnergy_val, val_pred)
+                r2_test = r2_score(bindingEnergy_test, test_pred)
+
+                results_train.append(r2_train)
+                results_val.append(r2_val)
+                results_test.append(r2_test)
+
+                results = [results_train, results_val, results_test]
+
+                write_regression_report_ffnn(results, param_args, param_args['output'])
 
                 train_plots(history, param_args['output'])
 
                 if 'ligandRMSD' in list(data.columns):
 
-                    target_plot(test_pred, ligand_test, bindingEnergy_test, ligandRMSD_test)
+                    target_plot(test_pred, ligand_test, bindingEnergy_test, ligandRMSD_test, param_args['output'])
 
             else:
 
@@ -423,9 +425,15 @@ def main():
 
     print("\nRun time: {} seconds.".format(end - start))
 
-    with open(param_args['output'] + param_args['run_name'] + "_run_times.txt", 'a') as rt:
-        rt.write(str(end - start))
-        rt.write('\n')
+    if 'path_graph' not in param_args:
+        with open(param_args['output'] + "_run_times.txt", 'a') as rt:
+            rt.write(str(end - start))
+            rt.write('\n')
+
+    else:
+        with open(param_args['output'] + param_args['run_name'] + "_run_times.txt", 'a') as rt:
+            rt.write(str(end - start))
+            rt.write('\n')
 
 
 if __name__ == "__main__":

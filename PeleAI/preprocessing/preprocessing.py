@@ -1,3 +1,6 @@
+import numpy as np
+import pandas as pd
+
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler, RobustScaler, Normalizer, QuantileTransformer, PowerTransformer
 
@@ -44,7 +47,7 @@ def data_splitting_regression(data, test_size, seed):
     train.drop(['ligand', 'bindingEnergy'], axis=1, inplace=True)
     test.drop(['ligand', 'bindingEnergy'], axis=1, inplace=True)
 
-    return train, bindingEnergy_train, test, bindingEnergy_test, ligands_test
+    return train, bindingEnergy_train, test, bindingEnergy_test, ligand_test
 
 def data_splitting_ffnn(data, seed):
     '''
@@ -89,7 +92,11 @@ def data_splitting_ffnn(data, seed):
 
     ligand_test = test['ligand']
 
-    return train, bindingEnergy_train, val, bindingEnergy_val, test, bindingEnergy_test, ligands_test, ligandRMSD_test
+    train.drop(['ligand'],axis=1, inplace=True)
+    test.drop(['ligand'], axis=1, inplace=True)
+    val.drop(['ligand'], axis=1, inplace=True)
+
+    return train, bindingEnergy_train, val, bindingEnergy_val, test, bindingEnergy_test, ligand_test, ligandRMSD_test
 
 
 class Scaler():

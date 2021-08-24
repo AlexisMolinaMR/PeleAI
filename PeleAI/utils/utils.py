@@ -2,7 +2,9 @@ import csv
 import os
 
 import pandas as pd
+import matplotlib.pyplot as plt
 import seaborn as sns
+
 from os import listdir
 
 
@@ -306,10 +308,10 @@ def write_regression_report(regression_outputs, out_file):
 
 def write_regression_report_ffnn(results, param_args, out_file):
 
-    with open(out_file, 'a') as out:
+    with open(out_file + 'peleAI_report.txt', 'a') as out:
 
         print("#####################################", file=out)
-        print('Scaler: MinMax'), file=out)
+        print('Scaler: MinMax', file=out)
         print("Feed Forward Neural Network\n", file=out)
         print("Learning rate {}\n".format(param_args['learning_rate']), file=out)
 
