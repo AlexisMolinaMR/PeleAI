@@ -1,7 +1,7 @@
 # requirements.txt
 
 tensorflow
-numpy==1.19.0
+numpy==1.22.0
 pandas==1.1.4
 prody==1.11
 sklearn
